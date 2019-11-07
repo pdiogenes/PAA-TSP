@@ -14,9 +14,10 @@ double m[100][100]; // inicializando a matriz de adjacencia
 vector<int> shorterPath; // inicializando vector pra armazernar o menor caminho
 int cities[100]; //inicializando vetor para armazenar as cidades possiveis
 int n; //numero de cidades
+double menorDist = INF;
 
 double calcDist(pairs p1, pairs p2){
-	//retorna a distancia entre 2 pontos
+    //retorna a distancia entre 2 pontos
 	return sqrt(pow((p2.first - p1.first), 2) + pow((p2.second - p1.second), 2));
 }
 
@@ -29,39 +30,31 @@ void copyPath(int a[], int n){
 }
 
 /*
-gera todas permutações das cidades
+gera algumas permutações das cidades
 calcula a distancia de cada permutação
-salva a que for menor, e o seu caminho
-e então printa no final
+apenas continua permutando se a reposta parcial for menor que a menor atual
 */
-void bruteForce(int a[], int n, double menorDist){
-	//orgazina o vector (para uma solução generica - para essa solução ele já sempre está ordenado)
-	sort(a, a+n);
-	double somaDist = 0; // inicia soma das distancias
-	do{
-		for (int i = 0; i < n; i++) {
-	        somaDist += m[a[i]][a[i+1]]; //soma as distancias do caminho
-	    }
-		if(somaDist < menorDist){
-			// se essa soma for menor que a menor atual, salva ela como menor e salva o caminho dela
-			menorDist = somaDist;
-			copyPath(a, n);
+void perms(int start, int end, int cities[], double parcial, int n){
+    parcial += m[cities[start-1]][cities[start]];
+	if(start == end){
+		double dist = parcial + m[cities[end]][cities[end+1]];
+		if(dist < menorDist){
+            menorDist = dist;
+            copyPath(cities, n);
+        }
+	} else {
+		for(int i = start; i <= end; i++){
+            if(parcial < menorDist){
+                swap(cities[i], cities[start]);
+    			perms(start + 1, end, cities, parcial, n);
+    			swap(cities[i], cities[start]);
+            }
 		}
-
-		somaDist = 0; //reseta a soma
-
-	} while (next_permutation(a + 1, a + n)); //proxima permutação
-
-	// procedimento para imprimir resposta
-	cout << menorDist << endl;
-	for(int i = 0; i < shorterPath.size() - 1; i++){
-		cout << shorterPath[i] + 1 << " ";
 	}
-	cout << endl;
 }
 
 int main(){
-	cin >> n;
+    cin >> n;
 	vector<pairs> coords; //cria um vetor de pares ordenados
 	int x, y;
 	for(int i = 0; i < n; i++){
@@ -83,7 +76,13 @@ int main(){
 	}
 	cities[n] = cities[0]; // cria a rota para permutar
 
-	double menorDist = INF;
-	bruteForce(cities, n, menorDist); // metodo força bruta
+	perms(1, n-1, cities, 0, n); //metodo backtracking
+    // sequencia para printar solução
+    cout << menorDist << endl;
+    for(int i = 0; i < shorterPath.size() - 1; i++){
+        cout << shorterPath[i] + 1 << " ";
+    }
+    cout << endl;
+
 	return 0;
 }
