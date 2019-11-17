@@ -74,7 +74,10 @@ int main(){
 		}
 	}
 
-    TSP();
+
+    const clock_t begin_time = clock(); // gets time
+	TSP();
+	cout << "\n\nTempo : " << float(clock () - begin_time) /  CLOCKS_PER_SEC << " segundos."; // shows time in seconds
 
     return 0;
 }
